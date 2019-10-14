@@ -2,16 +2,17 @@
 
 <?php include 'db.php';
 
-$page = (isset($_GET['page']) ? (int)$_GET['page'] : 1);
-$perPage = (isset($_GET['per-page']) && (int)($_GET['per-page']) <= 50 ? (int)$_GET['per-page'] : 5 );
-$start = ($page > 1 ) ? ($page * $perPage) - $perPage : 0;
 
-$sql = "select * from tasks limit ".$start." , ".$perPage." ";
-$total = $db->query("select * from tasks")->num_rows;
+if(isset($_POST['search'])){
 
-$pages =  ceil($total / $perPage);
+$name =htmlspecialchars($_POST['search']);
+
+$sql = "select * from tasks where name like '%$name%' ";
 
 $rows=$db->query($sql);
+
+
+}
 
 ?>
 
@@ -73,15 +74,19 @@ $rows=$db->query($sql);
     name="search" class="form-control">
   </form>
 </div>
-<table  class="table table-hover">
-  <thead>
-    <tr>
-      <th scope="col">ID.</th>
-      <th scope="col">Task</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
+    <?php if(mysqli_num_rows($rows) < 1): ?>
+    <h2 class="text-danger text-center">Nothing Found </h2>
+    <a href="index.php" class="btn btn-warning">Back</a>
+<?php else: ?>
+    <table  class="table table-hover">
+        <thead>
+            <tr>
+            <th scope="col">ID.</th>
+            <th scope="col">Task</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
 
 
         <?php while($row = $rows->fetch_assoc()): ?>
@@ -94,15 +99,8 @@ $rows=$db->query($sql);
       <?php endwhile; ?>
   </tbody>
 </table>
-<center>
-  <ul class="pagination text-center" >
-    <?php for($i = 1; $i <= $pages; $i++): ?>
-    <li class="page-item"><a class="page-link" href="?page=<?php echo $i;?>&per-page=<?php echo $perPage;?>"><?php echo $i; ?>
-    </a></li>
-   <?php endfor; ?>
-  </ul>
-  </center>
- 
+<?php endif;?> 
+
         </div>
 </div>
 </div>
